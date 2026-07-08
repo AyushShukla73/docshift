@@ -39,7 +39,7 @@ python -m venv .venv
 ```powershell
 python -m pip install --upgrade pip
 ```
-4. Install the required Python packages:
+**🔧 Install Python dependencies**
 ```powershell
 python -m pip install -r requirements.txt
 ```
