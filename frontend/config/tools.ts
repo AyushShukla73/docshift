@@ -1,0 +1,80 @@
+import { ToolDefinition } from "@/types/tool";
+
+/**
+ * Seed tool registry.
+ *
+ * Add new tools here on the frontend; the backend has a parallel registry
+ * in backend/app/services/tools/. Tool ids MUST match across both sides.
+ */
+export const TOOL_REGISTRY: ToolDefinition[] = [
+  {
+    id: "pdf_to_word",
+    label: "PDF to Word",
+    description: "Convert a PDF document into an editable DOCX file.",
+    category: "convert",
+    supportedInputs: ["pdf"],
+    outputType: "docx",
+    multiFile: false,
+    configurable: false,
+  },
+  {
+    id: "word_to_pdf",
+    label: "Word to PDF",
+    description: "Convert a Word document into a polished PDF.",
+    category: "convert",
+    supportedInputs: ["docx", "doc"],
+    outputType: "pdf",
+    multiFile: false,
+    configurable: false,
+  },
+  {
+    id: "image_to_pdf",
+    label: "Image to PDF",
+    description: "Combine one or more images into a single PDF.",
+    category: "convert",
+    supportedInputs: ["jpg", "png", "webp"],
+    outputType: "pdf",
+    multiFile: true,
+    configurable: false,
+  },
+  {
+    id: "pdf_to_image",
+    label: "PDF to Image",
+    description: "Render each PDF page into an image (ZIP archive).",
+    category: "convert",
+    supportedInputs: ["pdf"],
+    outputType: "zip",
+    multiFile: false,
+    configurable: true,
+  },
+  {
+    id: "merge_pdf",
+    label: "Merge PDFs",
+    description: "Combine multiple PDFs into one document.",
+    category: "organize",
+    supportedInputs: ["pdf"],
+    outputType: "pdf",
+    multiFile: true,
+    configurable: false,
+  },
+  {
+    id: "split_pdf",
+    label: "Split PDF",
+    description: "Extract ranges or individual pages from a PDF.",
+    category: "organize",
+    supportedInputs: ["pdf"],
+    outputType: "pdf",
+    multiFile: false,
+    configurable: true,
+  },
+  {
+    id: "compress_pdf",
+    label: "Compress PDF",
+    description: "Reduce file size while keeping quality.",
+    category: "optimize",
+    supportedInputs: ["pdf"],
+    outputType: "pdf",
+    multiFile: false,
+    configurable: true,
+  },
+];
