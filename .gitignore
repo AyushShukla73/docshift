@@ -9,10 +9,11 @@ backend/node_modules/
 backend/.venv/
 __pycache__/
 
-# Frontend build outputs
+# Build / generated outputs
 .next/
 dist/
 build/
+outputs/
 
 # Logs / local DBs
 *.log
