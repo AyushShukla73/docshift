@@ -43,7 +43,20 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
           <span className="font-medium text-slate-700">Mode</span>
           <select
             value={(options.mode as string) ?? "each"}
-            onChange={(e) => onChange({ ...options, mode: e.target.value })}
+            onChange={(e) => {
+                const newMode = e.target.value;
+                const updated = { ...options, mode: newMode };
+                // If switching to range, seed defaults if not already set
+                if (newMode === "range") {
+                  if (updated.range_start === undefined) updated.range_start = 1;
+                  if (updated.range_end === undefined) updated.range_end = 1;
+                }
+                // If switching to "n" mode, seed default pages per split
+                if (newMode === "n") {
+                  if (updated.n_pages === undefined) updated.n_pages = 2;
+                }
+                onChange(updated);
+              }}
             className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
           >
             <option value="range">Page range</option>

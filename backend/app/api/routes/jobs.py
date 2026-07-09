@@ -61,20 +61,6 @@ async def create_job(
             raise HTTPException(status_code=400, detail=f"Tool '{tool_id}' expects exactly one input file")
         if tool_def.multi_file and len(inputs) < 1:
             raise HTTPException(status_code=400, detail=f"Tool '{tool_id}' requires at least one input file")
-    # Validate split_pdf options
-    if tool_id == "split_pdf":
-        mode = parsed_options.get("mode", "each")
-        if mode not in ("range", "each", "n"):
-            raise HTTPException(status_code=400, detail="Invalid split mode")
-        if mode == "range":
-            start = parsed_options.get("range_start")
-            end = parsed_options.get("range_end")
-            if not isinstance(start, int) or not isinstance(end, int) or start < 1 or end < start:
-                raise HTTPException(status_code=400, detail="Invalid page range for split")
-        if mode == "n":
-            n_pages = parsed_options.get("n_pages")
-            if not isinstance(n_pages, int) or n_pages < 1:
-                raise HTTPException(status_code=400, detail="Invalid n_pages for split")
     job = Job(
         job_id=f"job_{int(__import__('time').time() * 1000)}",
         tool_id=tool_id,
