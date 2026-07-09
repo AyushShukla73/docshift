@@ -77,4 +77,14 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     multiFile: false,
     configurable: true,
   },
+    {
+      id: "extract_text_from_pdf",
+      label: "Extract Text from PDF",
+      description: "Extracts embedded text from a PDF into a plain text file.",
+      category: "convert",
+      supportedInputs: ["pdf"],
+      outputType: "txt",
+      multiFile: false,
+      configurable: false,
+    },
 ];

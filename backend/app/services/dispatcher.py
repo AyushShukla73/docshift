@@ -45,12 +45,12 @@ async def dispatch(job: Job) -> Job:
         }
         result = await asyncio.to_thread(handler, payload)
         job_output_data = result.get("output", {})
-            job.output = JobOutput(**job_output_data)
-            # Ensure tool_id and job_id are populated in output contract
-            if job.output.tool_id is None:
-                job.output.tool_id = job.tool_id
-            if job.output.job_id is None:
-                job.output.job_id = job.job_id
+        job.output = JobOutput(**job_output_data)
+        # Ensure tool_id and job_id are populated in output contract
+        if job.output.tool_id is None:
+            job.output.tool_id = job.tool_id
+        if job.output.job_id is None:
+            job.output.job_id = job.job_id
         job.status = JobStatus.COMPLETED
     except Exception as exc:  # pragma: no cover - placeholder guard
         job.status = JobStatus.FAILED

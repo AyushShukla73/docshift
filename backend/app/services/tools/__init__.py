@@ -7,6 +7,7 @@ from app.services.tools import (
     compress_pdf,
     image_to_pdf,
     pdf_to_image,
+    extract_text_from_pdf,
 )
 
 
@@ -19,3 +20,4 @@ def register_all_tools() -> None:
     compress_pdf.register()
     image_to_pdf.register()
     pdf_to_image.register()
+    extract_text_from_pdf.register()

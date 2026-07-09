@@ -22,6 +22,14 @@ def standard_result(
     * ``warnings`` – human‑readable warning messages.
     """
 
+    """Construct the normalized output contract.
+
+    * ``primary_path`` – the file that the UI should treat as the main result.
+    * ``extra_files`` – any additional artifacts (will be listed in ``output_files``).
+    * ``meta`` – tool‑specific free‑form metadata.
+    * ``warnings`` – human‑readable warning messages.
+    """
+
     def file_info(p: Path) -> Dict[str, Any]:
         return {
             "name": p.name,
@@ -53,3 +61,23 @@ def standard_result(
             "mime_type": primary_info["media_type"],
         }
     }
+
+# ---------------------------------------------------------------------------
+# Stub handler support (used for not‑yet‑implemented tools)
+# ---------------------------------------------------------------------------
+from typing import Callable
+
+def stub_handler(output_filename: str) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
+    """Return a placeholder handler that raises ``NotImplementedError``.
+
+    The dispatcher will catch the exception and turn it into a structured
+    ``error`` payload, which is acceptable for tools that are not yet
+    implemented.
+    """
+    def _handler(payload: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError(
+            f"Tool '{payload.get('tool_id')}' is not yet implemented – placeholder stub was invoked."
+        )
+    # Preserve the function name for debugging/identity purposes
+    _handler.__name__ = f"stub_{output_filename}"  # type: ignore
+    return _handler
