@@ -115,7 +115,13 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
         </div>
       )}
 
-      {job.error && <p className="mt-2 text-xs text-red-700">{job.error}</p>}
+      {job.error && (
+        <p className="mt-2 text-xs text-red-700">
+          {typeof job.error === "string"
+            ? job.error
+            : (job.error.message || JSON.stringify(job.error))}
+        </p>
+      )}
     </div>
   );
 }

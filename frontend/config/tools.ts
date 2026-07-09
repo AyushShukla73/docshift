@@ -97,4 +97,14 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
       multiFile: false,
       configurable: true,
     },
+    {
+      id: "unlock_pdf",
+      label: "Unlock PDF",
+      description: "Remove password protection from a PDF using the correct password.",
+      category: "optimize",
+      supportedInputs: ["pdf"],
+      outputType: "pdf",
+      multiFile: false,
+      configurable: true,
+    },
 ];

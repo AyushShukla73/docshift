@@ -9,6 +9,7 @@ from app.services.tools import (
     pdf_to_image,
     extract_text_from_pdf,
     protect_pdf,
+    unlock_pdf,
 )
 
 
@@ -23,3 +24,4 @@ def register_all_tools() -> None:
     pdf_to_image.register()
     extract_text_from_pdf.register()
     protect_pdf.register()
+    unlock_pdf.register()
