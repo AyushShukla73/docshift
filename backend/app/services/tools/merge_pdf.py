@@ -5,51 +5,38 @@ import tempfile
 from PyPDF2 import PdfMerger
 
 from app.core.registry import tool_registry
-from app.services.tools.base import mock_output
+from app.services.tools.base import standard_result
+from app.services.storage import create_workspace
+from pathlib import Path
 
 
 def _merge_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Merge multiple PDF inputs into a single PDF.
 
-    Expected payload keys:
-        - inputs: list of dicts with "filename" and "file_id"
-    The actual file contents are not stored on the server yet; for the MVP we assume the uploaded files are temporarily saved in a
-    directory accessible via a temp path. In this simplified implementation we recreate the PDF merger using the uploaded file
-    bytes that are stored in the ``job_store`` during the request handling step.
+    The handler expects each input dict to contain a ``temp_path`` pointing to the uploaded file on disk.
+    It uses the per‑job workspace (jobs/<job_id>/…) and returns a unified result via ``standard_result``.
     """
-    # The upload endpoint reads file content but does not persist it; we re‑read the files from the request payload's
-    # ``inputs`` list – each dict contains the original filename. For this example we will treat the filename as a path
-    # located in a temporary directory that FastAPI stores when handling ``UploadFile``. Since the content is not saved on
-    # disk, we cannot actually read the PDF bytes here. To keep the MVP functional we will generate an empty PDF that
-    # contains the correct number of pages (zero) using PyPDF2 – this demonstrates the merging flow without requiring a
-    # full file‑storage layer.
-    # In a production system the file bytes would be written to a temporary location before the handler runs.
-    temp_dir = tempfile.mkdtemp(prefix="merge_pdf_")
+    job_id = payload["job_id"]
+    # Build deterministic workspace for this job
+    ws = create_workspace(job_id)
+    temp_dir = ws["temp"]
     merger = PdfMerger()
     for inp in payload.get("inputs", []):
-        # Expect each input dict to contain a 'temp_path' pointing to the uploaded file on disk.
         temp_path = inp.get("temp_path")
-        if not temp_path or not os.path.exists(temp_path):
-            continue
-        merger.append(temp_path)
-    output_path = os.path.join(temp_dir, "merged.pdf")
-    merger.write(output_path)
+        if temp_path and Path(temp_path).exists():
+            merger.append(temp_path)
+    output_path = temp_dir / "merged.pdf"
+    merger.write(str(output_path))
     merger.close()
-    size = os.path.getsize(output_path)
-    # Persist output to a stable location for download
-    import shutil
-    job_id = payload.get("job_id")
-    out_dir = os.path.join(os.getcwd(), "outputs", job_id)
-    os.makedirs(out_dir, exist_ok=True)
-    dest_path = os.path.join(out_dir, "merged.pdf")
-    shutil.move(output_path, dest_path)
-    return {
-        "output": {
-            "filename": "merged.pdf",
-            "download_url": f"/api/jobs/{job_id}/download",
-            "size_bytes": size,
-        }
-    }
+    # Move final artifact to the outputs folder
+    final_path = ws["outputs"] / "merged.pdf"
+    output_path.replace(final_path)
+    # Return the standardized contract
+    return standard_result(
+        job_id=job_id,
+        primary_path=final_path,
+        meta={"tool": "merge_pdf"},
+    )
 
 
 def register() -> None:

@@ -29,6 +29,13 @@ async def create_job(
             raise HTTPException(status_code=400, detail="Invalid options JSON")
 
     inputs = []
+    import time
+    from app.services.storage import create_workspace
+
+    job_id = f"job_{int(time.time() * 1000)}"
+    workspace = create_workspace(job_id)
+
+    inputs = []
     for f in files:
         content = await f.read()
         detected = detect_type(f.filename or "", f.content_type)
@@ -37,11 +44,9 @@ async def create_job(
                 status_code=415,
                 detail=f"Unsupported file type for {f.filename}",
             )
-        # Write uploaded content to a temporary file so backend handlers can access it.
-        import tempfile, os
         safe_name = (f.filename or "file").replace("/", "_")
-        temp_path = os.path.join(tempfile.gettempdir(), f"job_{int(__import__('time').time()*1000)}_{safe_name}")
-        with open(temp_path, "wb") as tmp_file:
+        input_path = workspace["inputs"] / safe_name
+        with open(input_path, "wb") as tmp_file:
             tmp_file.write(content)
         inputs.append(
             {
@@ -50,7 +55,7 @@ async def create_job(
                 "detected_type": detected,
                 "size_bytes": len(content),
                 "content_type": f.content_type,
-                "temp_path": temp_path,
+                "temp_path": str(input_path),
             }
         )
 
@@ -62,7 +67,7 @@ async def create_job(
         if tool_def.multi_file and len(inputs) < 1:
             raise HTTPException(status_code=400, detail=f"Tool '{tool_id}' requires at least one input file")
     job = Job(
-        job_id=f"job_{int(__import__('time').time() * 1000)}",
+        job_id=job_id,
         tool_id=tool_id,
         status=JobStatus.PENDING,
         inputs=inputs,
@@ -90,25 +95,22 @@ async def download_result(job_id: str):
         raise HTTPException(status_code=404, detail="Job not found")
     if job.status != JobStatus.COMPLETED or not job.output:
         raise HTTPException(status_code=409, detail="Result not ready")
-    # Placeholder: in the future, stream the actual file.
-    # Serve the actual file as attachment
-    from fastapi import Response
+    # Serve the actual file as attachment based on stored primary_output_path
     from fastapi.responses import FileResponse
     import os
-    # Compute path based on job_id and stored filename
-    output_dir = os.path.join(os.getcwd(), "outputs", job.job_id)
-    file_path = os.path.join(output_dir, job.output.filename) if job.output and job.output.filename else None
-    if not file_path or not os.path.exists(file_path):
+
+    primary_path = job.output.primary_output_path if job.output and job.output.primary_output_path else None
+    if not primary_path or not os.path.exists(primary_path):
         raise HTTPException(status_code=404, detail="Output file not found")
     # Determine mime type (basic guess based on extension)
-    ext = os.path.splitext(job.output.filename)[1].lower()
+    ext = os.path.splitext(job.output.filename or "")[1].lower()
     mime = {
         ".pdf": "application/pdf",
         ".zip": "application/zip",
         ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     }.get(ext, "application/octet-stream")
     return FileResponse(
-        path=file_path,
+        path=primary_path,
         media_type=mime,
         filename=job.output.filename,
     )

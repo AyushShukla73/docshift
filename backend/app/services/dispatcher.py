@@ -44,11 +44,30 @@ async def dispatch(job: Job) -> Job:
             "options": job.options,
         }
         result = await asyncio.to_thread(handler, payload)
-        job.output = JobOutput(**result.get("output", {}))
+        job_output_data = result.get("output", {})
+            job.output = JobOutput(**job_output_data)
+            # Ensure tool_id and job_id are populated in output contract
+            if job.output.tool_id is None:
+                job.output.tool_id = job.tool_id
+            if job.output.job_id is None:
+                job.output.job_id = job.job_id
         job.status = JobStatus.COMPLETED
     except Exception as exc:  # pragma: no cover - placeholder guard
         job.status = JobStatus.FAILED
-        job.error = f"Handler error: {exc!r}"
+        # Use structured error if available
+        try:
+            from app.services.exceptions import ToolExecutionError
+        except Exception:
+            ToolExecutionError = Exception
+        if isinstance(exc, ToolExecutionError):
+            job.error = {
+                "message": str(exc),
+                "code": getattr(exc, "error_code", "tool_execution_error"),
+                "details": getattr(exc, "details", None),
+            }
+        else:
+            job.error = {"message": str(exc), "code": "unknown_error"}
+
 
     from datetime import datetime
     job.updated_at = datetime.utcnow()

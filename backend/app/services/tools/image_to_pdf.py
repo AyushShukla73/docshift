@@ -1,46 +1,35 @@
 from typing import Any, Dict, List
+from pathlib import Path
 import os
 import tempfile
-
 from PIL import Image
 
 from app.core.registry import tool_registry
-from app.services.tools.base import mock_output
+from app.services.tools.base import standard_result
+from app.services.storage import create_workspace
 
 
 def _image_to_pdf_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Combine uploaded images into a single PDF.
-
-    Supported image formats are those Pillow can open. The images are taken in the order they appear in ``payload['inputs']``.
-    """
-    input_paths: List[str] = []
+    """Combine uploaded images into a single PDF."""
+    job_id = payload["job_id"]
+    ws = create_workspace(job_id)
+    input_paths: List[Path] = []
     for inp in payload.get("inputs", []):
         p = inp.get("temp_path")
-        if p and os.path.exists(p):
-            input_paths.append(p)
+        if p and Path(p).exists():
+            input_paths.append(Path(p))
     if not input_paths:
         raise ValueError("No image inputs provided")
-
-    images = [Image.open(p).convert("RGB") for p in input_paths]
-    temp_dir = tempfile.mkdtemp(prefix="img2pdf_")
-    out_path = os.path.join(temp_dir, "merged.pdf")
-    # Save first image and append others
-    images[0].save(out_path, save_all=True, append_images=images[1:])
-    size = os.path.getsize(out_path)
-    # Persist output PDF
-    import shutil
-    job_id = payload.get("job_id")
-    out_dir = os.path.join(os.getcwd(), "outputs", job_id)
-    os.makedirs(out_dir, exist_ok=True)
-    dest_path = os.path.join(out_dir, "merged.pdf")
-    shutil.move(out_path, dest_path)
-    return {
-        "output": {
-            "filename": "merged.pdf",
-            "download_url": f"/api/jobs/{job_id}/download",
-            "size_bytes": size,
-        }
-    }
+    images = [Image.open(str(p)).convert("RGB") for p in input_paths]
+    out_path = ws["temp"] / "merged.pdf"
+    images[0].save(str(out_path), save_all=True, append_images=images[1:])
+    final_path = ws["outputs"] / "merged.pdf"
+    out_path.replace(final_path)
+    return standard_result(
+        job_id=job_id,
+        primary_path=final_path,
+        meta={"image_count": len(input_paths)},
+    )
 
 
 def register() -> None:
