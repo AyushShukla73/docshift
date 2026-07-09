@@ -3,24 +3,35 @@ node_modules/
 frontend/node_modules/
 backend/node_modules/
 
-# Env / Python
-.env
+# Python virtual environments / caches
 .venv/
 backend/.venv/
 __pycache__/
+*.py[cod]
 
-# Build / generated outputs
+# Env files
+.env
+.env.*
+
+# Frontend / build outputs
 .next/
+frontend/.next/
 dist/
 build/
+
+# App-generated outputs
 outputs/
+backend/outputs/
 backend/output/
 
-# Logs / local DBs
+# Logs / runtime files / local DBs
 *.log
 *.sqlite3
+*.db
+uvicorn_pid.txt
 
-# Editor / OS
+# OS / editor
 .vscode/
+.idea/
 .DS_Store
 Thumbs.db
