@@ -87,4 +87,14 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
       multiFile: false,
       configurable: false,
     },
+    {
+      id: "protect_pdf",
+      label: "Protect PDF",
+      description: "Encrypt a PDF with a password so it requires the password to open.",
+      category: "optimize",
+      supportedInputs: ["pdf"],
+      outputType: "pdf",
+      multiFile: false,
+      configurable: true,
+    },
 ];

@@ -71,6 +71,15 @@ export default function Workspace() {
     setError(null);
     setJob(null);
     try {
+      // Front‑end validation for tools that require extra options
+      if (selectedTool?.id === "protect_pdf") {
+        const pwd = (options.password as string) ?? "";
+        if (!pwd.trim()) {
+          setError("Password is required for Protect PDF");
+          setIsProcessing(false);
+          return;
+        }
+      }
       const result = await createJob({
         toolId: selectedTool.id,
         files: files.map((f) => f.file),

@@ -122,6 +122,26 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
     );
   }
 
+  if (tool.id === "protect_pdf") {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Protect options
+        </div>
+        <label className="flex flex-col gap-1 text-xs">
+          <span className="font-medium text-slate-700">Password</span>
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={(options.password as string) ?? ""}
+            onChange={(e) => onChange({ ...options, password: e.target.value })}
+            className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
+          />
+        </label>
+      </div>
+    );
+  }
+
   // Fallback generic options (quality, note) – retained for future tools.
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
