@@ -23,21 +23,33 @@ class ToolRegistry:
         self,
         tool_id: str,
         label: str,
-        supported_inputs: List[str],
-        output_type: str,
-        handler: ToolHandler,
+        description: str = "",
+        category: str = "",
+        supported_inputs: List[str] = [],
+        output_type: str = "",
+        handler: ToolHandler = None,
         multi_file: bool = False,
         configurable: bool = False,
     ) -> None:
+        """Register a tool with richer metadata.
+
+        Parameters:
+            description – human‑readable description shown in UI.
+            category – grouping such as "convert" or "organize".
+            handler – optional; if omitted the tool registers without a handler.
+        """
         self._tools[tool_id] = ToolDefinition(
             id=tool_id,
             label=label,
+            description=description,
+            category=category,
             supported_inputs=supported_inputs,
             output_type=output_type,
             multi_file=multi_file,
             configurable=configurable,
         )
-        self._handlers[tool_id] = handler
+        if handler is not None:
+            self._handlers[tool_id] = handler
 
     def list_tools(self) -> List[ToolDefinition]:
         return list(self._tools.values())

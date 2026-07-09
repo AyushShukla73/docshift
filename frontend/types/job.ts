@@ -9,18 +9,15 @@ export interface JobInput {
 
 export interface JobOutput {
   filename?: string;
-  download_url?: string;
   size_bytes?: number;
+  mime_type?: string;
+  download_url?: string;
 }
 
 export interface Job {
   job_id: string;
+  status: string;
   tool_id: string;
-  status: JobStatus;
-  created_at: string;
-  updated_at: string;
-  inputs: JobInput[];
-  options: Record<string, unknown>;
-  output: JobOutput | null;
-  error: string | null;
+  output?: JobOutput;
+  error?: string | null;
 }

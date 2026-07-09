@@ -8,6 +8,7 @@ class JobInput(BaseModel):
     filename: str
     detected_type: str
     size_bytes: int
+    temp_path: str | None = None
 
 
 class JobOutput(BaseModel):

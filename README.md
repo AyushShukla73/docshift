@@ -68,6 +68,7 @@ uvicorn app.main:app --reload --port 8000
 cd C:\Users\ayush\OneDrive\Desktop\docshift\frontend
 ```
 2. Install the npm dependencies (exact versions are locked in `package.json`):
+**📦 Install Node dependencies**
 ```powershell
 npm ci
 ```

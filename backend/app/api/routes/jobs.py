@@ -7,6 +7,7 @@ from app.models.job import Job, JobStatus
 from app.services.dispatcher import dispatch
 from app.services.storage import job_store
 from app.utils.file_helpers import detect_type, human_size
+from app.core.registry import tool_registry
 
 router = APIRouter()
 
@@ -36,6 +37,12 @@ async def create_job(
                 status_code=415,
                 detail=f"Unsupported file type for {f.filename}",
             )
+        # Write uploaded content to a temporary file so backend handlers can access it.
+        import tempfile, os
+        safe_name = (f.filename or "file").replace("/", "_")
+        temp_path = os.path.join(tempfile.gettempdir(), f"job_{int(__import__('time').time()*1000)}_{safe_name}")
+        with open(temp_path, "wb") as tmp_file:
+            tmp_file.write(content)
         inputs.append(
             {
                 "file_id": f.filename or "file",
@@ -43,9 +50,31 @@ async def create_job(
                 "detected_type": detected,
                 "size_bytes": len(content),
                 "content_type": f.content_type,
+                "temp_path": temp_path,
             }
         )
 
+    # Validate file count against tool definition
+    tool_def = tool_registry.get(tool_id)
+    if tool_def:
+        if not tool_def.multi_file and len(inputs) != 1:
+            raise HTTPException(status_code=400, detail=f"Tool '{tool_id}' expects exactly one input file")
+        if tool_def.multi_file and len(inputs) < 1:
+            raise HTTPException(status_code=400, detail=f"Tool '{tool_id}' requires at least one input file")
+    # Validate split_pdf options
+    if tool_id == "split_pdf":
+        mode = parsed_options.get("mode", "each")
+        if mode not in ("range", "each", "n"):
+            raise HTTPException(status_code=400, detail="Invalid split mode")
+        if mode == "range":
+            start = parsed_options.get("range_start")
+            end = parsed_options.get("range_end")
+            if not isinstance(start, int) or not isinstance(end, int) or start < 1 or end < start:
+                raise HTTPException(status_code=400, detail="Invalid page range for split")
+        if mode == "n":
+            n_pages = parsed_options.get("n_pages")
+            if not isinstance(n_pages, int) or n_pages < 1:
+                raise HTTPException(status_code=400, detail="Invalid n_pages for split")
     job = Job(
         job_id=f"job_{int(__import__('time').time() * 1000)}",
         tool_id=tool_id,
@@ -76,9 +105,24 @@ async def download_result(job_id: str):
     if job.status != JobStatus.COMPLETED or not job.output:
         raise HTTPException(status_code=409, detail="Result not ready")
     # Placeholder: in the future, stream the actual file.
-    return {
-        "job_id": job.job_id,
-        "filename": job.output.filename,
-        "download_url": job.output.download_url,
-        "note": "Placeholder download endpoint.",
-    }
+    # Serve the actual file as attachment
+    from fastapi import Response
+    from fastapi.responses import FileResponse
+    import os
+    # Compute path based on job_id and stored filename
+    output_dir = os.path.join(os.getcwd(), "outputs", job.job_id)
+    file_path = os.path.join(output_dir, job.output.filename) if job.output and job.output.filename else None
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Output file not found")
+    # Determine mime type (basic guess based on extension)
+    ext = os.path.splitext(job.output.filename)[1].lower()
+    mime = {
+        ".pdf": "application/pdf",
+        ".zip": "application/zip",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    }.get(ext, "application/octet-stream")
+    return FileResponse(
+        path=file_path,
+        media_type=mime,
+        filename=job.output.filename,
+    )

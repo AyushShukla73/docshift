@@ -63,7 +63,7 @@ export default function Workspace() {
     files.length > 0 &&
     selectedTool !== null &&
     !isProcessing &&
-    (selectedTool.multiFile ? files.length >= 1 : files.length >= 1);
+    (selectedTool.multiFile ? files.length >= 1 : files.length === 1);
 
   const handleRun = useCallback(async () => {
     if (!selectedTool) return;

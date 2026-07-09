@@ -85,14 +85,29 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
               · job {job.job_id}
             </p>
           </div>
+
           <Button
             size="sm"
             variant="secondary"
-            onClick={() =>
-              alert(
-                `Placeholder download for ${job.output?.filename}.\nWire this to /api/jobs/${job.job_id}/download when real output exists.`
-              )
-            }
+            onClick={() => {
+              const apiBase =
+                process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
+              let downloadUrl = job.output?.download_url?.trim();
+
+              if (!downloadUrl) {
+                downloadUrl = `${apiBase}/api/jobs/${job.job_id}/download`;
+              } else if (downloadUrl.startsWith("/")) {
+                downloadUrl = `${apiBase}${downloadUrl}`;
+              } else if (
+                !downloadUrl.startsWith("http://") &&
+                !downloadUrl.startsWith("https://")
+              ) {
+                downloadUrl = `${apiBase}/${downloadUrl.replace(/^\/+/, "")}`;
+              }
+
+              window.open(downloadUrl, "_blank");
+            }}
           >
             <Icon name="download" className="h-4 w-4" />
             Download
@@ -100,9 +115,7 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
         </div>
       )}
 
-      {job.error && (
-        <p className="mt-2 text-xs text-red-700">{job.error}</p>
-      )}
+      {job.error && <p className="mt-2 text-xs text-red-700">{job.error}</p>}
     </div>
   );
 }
