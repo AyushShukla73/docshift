@@ -22,7 +22,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     label: "Word to PDF",
     description: "Convert a Word document into a polished PDF.",
     category: "convert",
-    supportedInputs: ["docx", "doc"],
+    supportedInputs: ["docx"],
     outputType: "pdf",
     multiFile: false,
     configurable: false,

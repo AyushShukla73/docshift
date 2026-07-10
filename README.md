@@ -20,6 +20,7 @@ The repository is intentionally lightweight so you can **run it locally** or **c
 - **Node 20+** and **npm** (add to `PATH`).
 - **Git** (optional, for cloning).
 - **PowerShell** (default on Windows) or any POSIX‑compatible shell.
+- **LibreOffice** (required for the *Word → PDF* tool). Install the official LibreOffice package and ensure the `libreoffice` or `soffice` executable is on your system `PATH` (the installer can add it automatically, or you can add `C:\Program Files\LibreOffice\program` manually).  This binary is invoked in headless mode by the backend to perform DOCX→PDF conversion.
 - Optional: **Docker** if you want to run the whole stack in containers.
 
 ---
