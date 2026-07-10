@@ -17,7 +17,6 @@ def _word_to_pdf_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
         - inputs: list with a single dict containing "temp_path"
         - options: currently unused (reserved for future extensions)
     """
-    # ---- validation -----------------------------------------------------
     inputs = payload.get("inputs", [])
     if len(inputs) != 1:
         raise ToolValidationError(
@@ -44,7 +43,6 @@ def _word_to_pdf_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
     if not job_id:
         raise ToolValidationError("Missing job_id in payload", code="validation_error")
 
-    # ---- dependency check: LibreOffice ----------------------------------
     # LibreOffice binary may be called "libreoffice" or "soffice" depending on install.
     libreoffice_cmd = shutil.which("libreoffice") or shutil.which("soffice")
     # If not found on PATH, try the default Windows installation directories.
@@ -65,7 +63,6 @@ def _word_to_pdf_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
             code="libreoffice_missing",
         )
 
-    # ---- workspace ------------------------------------------------------
     ws = create_workspace(job_id)
     output_dir = ws["outputs"]
 
@@ -100,7 +97,6 @@ def _word_to_pdf_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
             "Conversion succeeded but output PDF not found", code="output_missing"
         )
 
-    # ---- build result ---------------------------------------------------
     meta = {
         "summary": f"Converted DOCX '{src_path_obj.name}' to PDF",
         "source_type": "docx",

@@ -16,8 +16,12 @@ export interface JobOutput {
 
 export interface Job {
   job_id: string;
-  status: string;
   tool_id: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  created_at?: string;
+  updated_at?: string;
+  inputs?: any[]; // keep generic, not used directly in UI
+  options?: Record<string, unknown>;
   output?: JobOutput;
-  error?: string | null;
+  error?: any; // can be string or object from backend
 }

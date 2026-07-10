@@ -19,7 +19,6 @@ def _compress_pdf_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
         - inputs: list with a single dict containing "temp_path"
         - options: dict with required key "level" ("low", "medium", "high")
     """
-    # ---- validation -----------------------------------------------------
     inputs = payload.get("inputs", [])
     if len(inputs) != 1:
         raise ToolValidationError(

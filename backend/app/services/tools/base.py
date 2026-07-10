@@ -14,21 +14,7 @@ def standard_result(
     meta: Optional[Dict[str, Any]] = None,
     warnings: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """Construct the normalized output contract.
 
-    * ``primary_path`` – the file that the UI should treat as the main result.
-    * ``extra_files`` – any additional artifacts (will be listed in ``output_files``).
-    * ``meta`` – tool‑specific free‑form metadata.
-    * ``warnings`` – human‑readable warning messages.
-    """
-
-    """Construct the normalized output contract.
-
-    * ``primary_path`` – the file that the UI should treat as the main result.
-    * ``extra_files`` – any additional artifacts (will be listed in ``output_files``).
-    * ``meta`` – tool‑specific free‑form metadata.
-    * ``warnings`` – human‑readable warning messages.
-    """
 
     def file_info(p: Path) -> Dict[str, Any]:
         return {

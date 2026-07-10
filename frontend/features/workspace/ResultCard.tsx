@@ -2,10 +2,12 @@
 import React from "react";
 
 import { Job } from "@/types/job";
+import { getToolById } from "@/lib/toolFilter";
+import { humanSize } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
+import { normalizeWarnings, extractErrorMessage, formatResultMeta } from "./resultHelpers";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import { humanSize } from "@/lib/utils";
 
 interface Props {
   job: Job | null;
@@ -14,6 +16,8 @@ interface Props {
 }
 
 export default function ResultCard({ job, error, isProcessing }: Props) {
+    const tool = job?.tool_id ? getToolById(job.tool_id) : null;
+  const toolLabel = tool?.label ?? job?.tool_id ?? "";
   if (isProcessing) {
     return (
       <div className="rounded-xl border border-brand-200 bg-brand-50 p-4">
@@ -118,7 +122,7 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
 
       {ok && job.output?.warnings?.length > 0 && (
         <div className="mt-2 space-y-1">
-          {job.output.warnings.map((w, i) => (
+          {normalizeWarnings(job.output.warnings).map((w, i) => (
             <div key={i} className="flex items-start gap-1 text-xs text-yellow-700">
               <Icon name="alertTriangle" className="h-4 w-4 flex-shrink-0" />
               <span>{w}</span>
@@ -127,15 +131,34 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
         </div>
       )}
 
-      {/* Tool‑specific metadata */}
-      {ok && job.output?.result_meta && Object.keys(job.output.result_meta).length > 0 && (
+            {ok && job.output?.output_files?.length > 1 && (
+        <div className="mt-4">
+          <div className="text-xs font-medium text-slate-700 mb-1">Generated files</div>
+          <ul className="space-y-2">
+            {job.output.output_files
+              .filter((f) => f.name !== job.output?.filename)
+              .map((f, idx) => (
+                <li key={idx} className="flex items-center justify-between rounded bg-white p-2 text-sm">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-slate-900">{f.name}</p>
+                    <p className="text-[11px] text-slate-500">
+                      {f.size_bytes ? humanSize(f.size_bytes) : "size unknown"} · {f.media_type ?? "unknown"}
+                    </p>
+                  </div>
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+
+            {ok && job.output?.result_meta && formatResultMeta(job.output.result_meta).length > 0 && (
         <div className="mt-2">
           <div className="text-xs font-medium text-slate-700 mb-1">Details</div>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600">
-            {Object.entries(job.output.result_meta).map(([key, value]) => (
-              <React.Fragment key={key}>
-                <dt className="capitalize text-slate-500">{key.replace(/_/g, ' ')}</dt>
-                <dd>{String(value)}</dd>
+            {formatResultMeta(job.output.result_meta).map(({ label, value }, i) => (
+              <React.Fragment key={i}>
+                <dt className="capitalize text-slate-500">{label}</dt>
+                <dd>{value}</dd>
               </React.Fragment>
             ))}
           </dl>
@@ -143,11 +166,7 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
       )}
 
       {job.error && (
-        <p className="mt-2 text-xs text-red-700">
-          {typeof job.error === "string"
-            ? job.error
-            : (job.error.message || JSON.stringify(job.error))}
-        </p>
+        <p className="mt-2 text-xs text-red-700">{extractErrorMessage(job.error)}</p>
       )}
     </div>
   );

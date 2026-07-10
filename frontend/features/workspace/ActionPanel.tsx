@@ -119,5 +119,4 @@ function NoCompatibleToolsState({ types }: { types: string[] }) {
   );
 }
 
-// Local import to keep file self-contained for the empty state icon.
 import { Icon } from "@/components/ui/Icon";

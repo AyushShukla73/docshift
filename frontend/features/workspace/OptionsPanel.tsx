@@ -32,8 +32,7 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
     );
   }
 
-  // Render tool‑specific option UI when known.
-  if (tool.id === "split_pdf") {
+    if (tool.id === "split_pdf") {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -192,8 +191,7 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
     );
   }
 
-  // Fallback generic options (quality, note) – retained for future tools.
-  return (
+    return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
         Options

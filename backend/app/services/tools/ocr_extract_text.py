@@ -23,7 +23,6 @@ def _ocr_extract_text_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
         - inputs: list with a single dict containing "temp_path"
         - options: optional dict, may contain "language" (default "eng")
     """
-    # ---- validation -----------------------------------------------------
     inputs = payload.get("inputs", [])
     if len(inputs) != 1:
         raise ToolValidationError(
@@ -43,7 +42,6 @@ def _ocr_extract_text_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
     # Prepare a warnings container early so we can safely append later.
     warnings: List[str] = []
 
-    # ---- check Tesseract dependency -------------------------------------
     use_fallback = False
     if _pt is None:
         # pytesseract not installed – fall back to built‑in page text extraction.
@@ -60,7 +58,6 @@ def _ocr_extract_text_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
     # No warning is added here – the tool will still return the result without
     # the "OCR could not be performed" message.
 
-    # ---- workspace ------------------------------------------------------
     ws = create_workspace(job_id)
     output_dir = ws["outputs"]
 

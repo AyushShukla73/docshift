@@ -24,16 +24,13 @@ export default function Workspace() {
 
   const selectedTool: ToolDefinition | null = useMemo(() => {
     if (!selectedToolId) return null;
-    // Look up via registry through the filter lib for safety.
-    const { getToolById } = require("@/lib/toolFilter");
+        const { getToolById } = require("@/lib/toolFilter");
     return getToolById(selectedToolId) as ToolDefinition | null;
   }, [selectedToolId]);
 
   const handleFilesAdded = useCallback((next: UploadedFile[]) => {
     setFiles((prev) => {
-      // Enforce multi-file vs single-file at the upload boundary for now.
-      // Single-file tools replace; multi-file tools append.
-      return [...prev, ...next];
+                  return [...prev, ...next];
     });
     setJob(null);
     setError(null);
