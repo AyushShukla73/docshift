@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 
 import { Job } from "@/types/job";
 import { Badge } from "@/components/ui/Badge";
