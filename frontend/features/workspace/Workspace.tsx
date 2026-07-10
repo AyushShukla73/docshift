@@ -63,7 +63,11 @@ export default function Workspace() {
     files.length > 0 &&
     selectedTool !== null &&
     !isProcessing &&
-    (selectedTool.multiFile ? files.length >= 1 : files.length === 1);
+    (selectedTool.multiFile ? files.length >= 1 : files.length === 1) &&
+    // Additional option validation for tools that need a password
+    (!["protect_pdf", "unlock_pdf"].includes(selectedTool?.id || "") ||
+      ((options.password as string) ?? "").trim().length > 0);
+
 
   const handleRun = useCallback(async () => {
     if (!selectedTool) return;
@@ -72,10 +76,11 @@ export default function Workspace() {
     setJob(null);
     try {
       // Front‑end validation for tools that require extra options
-      if (selectedTool?.id === "protect_pdf") {
+      if (selectedTool?.id === "protect_pdf" || selectedTool?.id === "unlock_pdf") {
         const pwd = (options.password as string) ?? "";
         if (!pwd.trim()) {
-          setError("Password is required for Protect PDF");
+          const toolName = selectedTool?.id === "protect_pdf" ? "Protect PDF" : "Unlock PDF";
+          setError(`Password is required for ${toolName}`);
           setIsProcessing(false);
           return;
         }

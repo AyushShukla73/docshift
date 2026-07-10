@@ -116,10 +116,28 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
       )}
 
       {ok && job.output?.warnings?.length > 0 && (
-        <div className="mt-2 text-xs text-yellow-700">
+        <div className="mt-2 space-y-1">
           {job.output.warnings.map((w, i) => (
-            <p key={i} className="mb-1">{w}</p>
+            <div key={i} className="flex items-start gap-1 text-xs text-yellow-700">
+              <Icon name="alertTriangle" className="h-4 w-4 flex-shrink-0" />
+              <span>{w}</span>
+            </div>
           ))}
+        </div>
+      )}
+
+      {/* Tool‑specific metadata */}
+      {ok && job.output?.result_meta && Object.keys(job.output.result_meta).length > 0 && (
+        <div className="mt-2">
+          <div className="text-xs font-medium text-slate-700 mb-1">Details</div>
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600">
+            {Object.entries(job.output.result_meta).map(([key, value]) => (
+              <React.Fragment key={key}>
+                <dt className="capitalize text-slate-500">{key.replace(/_/g, ' ')}</dt>
+                <dd>{String(value)}</dd>
+              </React.Fragment>
+            ))}
+          </dl>
         </div>
       )}
 

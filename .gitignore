@@ -23,6 +23,7 @@ build/
 outputs/
 backend/outputs/
 backend/output/
+backend/jobs/
 
 # Logs / runtime files / local DBs
 *.log
@@ -35,3 +36,4 @@ uvicorn_pid.txt
 .idea/
 .DS_Store
 Thumbs.db
+backend/app/storage/

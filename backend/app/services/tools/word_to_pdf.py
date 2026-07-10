@@ -47,9 +47,21 @@ def _word_to_pdf_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
     # ---- dependency check: LibreOffice ----------------------------------
     # LibreOffice binary may be called "libreoffice" or "soffice" depending on install.
     libreoffice_cmd = shutil.which("libreoffice") or shutil.which("soffice")
+    # If not found on PATH, try the default Windows installation directories.
+    if not libreoffice_cmd:
+        possible_paths = [
+            r"C:\Program Files\LibreOffice\program\soffice.exe",
+            r"C:\Program Files\LibreOffice\program\libreoffice.exe",
+            r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+            r"C:\Program Files (x86)\LibreOffice\program\libreoffice.exe",
+        ]
+        for p in possible_paths:
+            if Path(p).exists():
+                libreoffice_cmd = str(p)
+                break
     if not libreoffice_cmd:
         raise ToolDependencyError(
-            "LibreOffice executable not found. Install LibreOffice to use this tool.",
+            "LibreOffice executable not found. Install LibreOffice and ensure its binary (libreoffice or soffice) is on your system PATH.",
             code="libreoffice_missing",
         )
 

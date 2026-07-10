@@ -123,6 +123,8 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
   }
 
   if (tool.id === "protect_pdf") {
+    const pwd = (options.password as string) ?? "";
+    const showError = pwd.trim().length === 0;
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -133,10 +135,13 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
           <input
             type="password"
             placeholder="Enter password"
-            value={(options.password as string) ?? ""}
+            value={pwd}
             onChange={(e) => onChange({ ...options, password: e.target.value })}
-            className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
+            className={`h-9 rounded-lg border ${showError ? "border-red-400" : "border-slate-200"} px-2 text-sm`}
           />
+          {showError && (
+            <p className="mt-1 text-xs text-red-600">Password required to protect PDF.</p>
+          )}
         </label>
       </div>
     );
@@ -163,6 +168,8 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
       }
 
       if (tool.id === "unlock_pdf") {
+    const pwd = (options.password as string) ?? "";
+    const showError = pwd.trim().length === 0;
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -173,10 +180,13 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
           <input
             type="password"
             placeholder="Enter password"
-            value={(options.password as string) ?? ""}
+            value={pwd}
             onChange={(e) => onChange({ ...options, password: e.target.value })}
-            className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
+            className={`h-9 rounded-lg border ${showError ? "border-red-400" : "border-slate-200"} px-2 text-sm`}
           />
+          {showError && (
+            <p className="mt-1 text-xs text-red-600">Password required to unlock PDF.</p>
+          )}
         </label>
       </div>
     );

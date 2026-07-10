@@ -20,7 +20,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   {
     id: "word_to_pdf",
     label: "Word to PDF",
-    description: "Convert a Word document into a polished PDF.",
+    description: "Convert a DOCX (Word) document into a polished PDF. Currently supports DOCX only.",
     category: "convert",
     supportedInputs: ["docx"],
     outputType: "pdf",
@@ -70,7 +70,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   {
     id: "compress_pdf",
     label: "Compress PDF",
-    description: "Reduce file size while keeping quality.",
+    description: "Compress PDF with selectable quality levels (low, medium, high) balancing size reduction against visual fidelity.",
     category: "optimize",
     supportedInputs: ["pdf"],
     outputType: "pdf",
@@ -80,7 +80,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     {
       id: "extract_text_from_pdf",
       label: "Extract Text from PDF",
-      description: "Extracts embedded text from a PDF into a plain text file.",
+      description: "Extract the native text layer from a PDF (no OCR). Suitable for digital PDFs where text is already embedded.",
       category: "convert",
       supportedInputs: ["pdf"],
       outputType: "txt",
