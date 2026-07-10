@@ -142,7 +142,27 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
     );
   }
 
-  if (tool.id === "unlock_pdf") {
+  
+      if (tool.id === "compress_pdf") {
+        return (
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Compression level
+            </div>
+            <select
+              value={(options.level as string) ?? "medium"}
+              onChange={(e) => onChange({ ...options, level: e.target.value })}
+              className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
+            >
+              <option value="low">Low – best quality (larger file)</option>
+              <option value="medium">Medium – balanced</option>
+              <option value="high">High – strongest compression (smaller file)</option>
+            </select>
+          </div>
+        );
+      }
+
+      if (tool.id === "unlock_pdf") {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">

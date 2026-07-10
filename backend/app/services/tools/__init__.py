@@ -10,6 +10,7 @@ from app.services.tools import (
     extract_text_from_pdf,
     protect_pdf,
     unlock_pdf,
+    ocr_extract_text,
 )
 
 
@@ -25,3 +26,4 @@ def register_all_tools() -> None:
     extract_text_from_pdf.register()
     protect_pdf.register()
     unlock_pdf.register()
+    ocr_extract_text.register()

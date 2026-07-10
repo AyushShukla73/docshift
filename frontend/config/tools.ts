@@ -107,4 +107,14 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
       multiFile: false,
       configurable: true,
     },
+    {
+      id: "ocr_extract_text",
+      label: "OCR Extract Text",
+      description: "Extract text from scanned or image‑based PDFs using OCR.",
+      category: "convert",
+      supportedInputs: ["pdf"],
+      outputType: "txt",
+      multiFile: false,
+      configurable: false,
+    },
 ];

@@ -115,6 +115,14 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
         </div>
       )}
 
+      {ok && job.output?.warnings?.length > 0 && (
+        <div className="mt-2 text-xs text-yellow-700">
+          {job.output.warnings.map((w, i) => (
+            <p key={i} className="mb-1">{w}</p>
+          ))}
+        </div>
+      )}
+
       {job.error && (
         <p className="mt-2 text-xs text-red-700">
           {typeof job.error === "string"
