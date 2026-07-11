@@ -37,6 +37,10 @@ def _split_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
     else:
         raise ValueError(f"Unsupported split mode: {raw_mode}")
 
+    # New unified selection model
+    selection_mode = options.get("selection_mode")
+    selected_pages = options.get("selected_pages")
+
     reader = PdfReader(src_path)
     total_pages = len(reader.pages)
     if total_pages == 0:
@@ -52,22 +56,32 @@ def _split_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
 
     try:
         if mode == "range":
-            raw_start = options.get("start", options.get("range_start"))
-            raw_end = options.get("end", options.get("range_end"))
-            if raw_start is None or raw_end is None:
-                raise ValueError("Invalid page range for split: missing start or end page")
-            start_page = int(raw_start)
-            end_page = int(raw_end)
-            if start_page < 1 or end_page < 1:
-                raise ValueError("Page numbers must be at least 1")
-            if start_page > end_page:
-                raise ValueError("Start page cannot be greater than end page")
-            if end_page > total_pages:
-                raise ValueError("Requested range exceeds PDF page count")
+            # Unified selection: explicit pages or fallback to start/end range
+            pages_to_split: List[int] = []
+            if isinstance(selected_pages, list) and selected_pages:
+                pages_to_split = [int(p) for p in selected_pages]
+            else:
+                raw_start = options.get("start", options.get("range_start"))
+                raw_end = options.get("end", options.get("range_end"))
+                if raw_start is None or raw_end is None:
+                    raise ValueError("Invalid page range for split: missing start or end page")
+                start_page = int(raw_start)
+                end_page = int(raw_end)
+                if start_page < 1 or end_page < 1:
+                    raise ValueError("Page numbers must be at least 1")
+                if start_page > end_page:
+                    raise ValueError("Start page cannot be greater than end page")
+                if end_page > total_pages:
+                    raise ValueError("Requested range exceeds PDF page count")
+                pages_to_split = list(range(start_page, end_page + 1))
+            # Validate pages
+            for p in pages_to_split:
+                if p < 1 or p > total_pages:
+                    raise ValueError(f"Requested page {p} out of bounds (1-{total_pages})")
             writer = PdfWriter()
-            for pi in range(start_page - 1, end_page):
-                writer.add_page(reader.pages[pi])
-            out_path = temp_dir / f"pages_{start_page}_to_{end_page}.pdf"
+            for pi in pages_to_split:
+                writer.add_page(reader.pages[pi - 1])
+            out_path = temp_dir / f"pages_{pages_to_split[0]}_to_{pages_to_split[-1]}.pdf"
             with open(out_path, "wb") as f:
                 writer.write(f)
             output_paths.append(out_path)

@@ -1,6 +1,8 @@
 "use client";
 
 import { ToolDefinition } from "@/types/tool";
+import PageGrid from "@/components/preview/PageGrid";
+import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
 interface Props {
@@ -33,75 +35,89 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
   }
 
     if (tool.id === "split_pdf") {
-    return (
-      <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Split options
-        </div>
-        <label className="flex flex-col gap-1 text-xs">
-          <span className="font-medium text-slate-700">Mode</span>
-          <select
-            value={(options.mode as string) ?? "each"}
-            onChange={(e) => {
+      const previewPages = (options.previewPages as any) ?? [];
+
+      const handleSelectionChange = (selected: number[]) => {
+        setSelectedPages(selected);
+        if (selected.length > 0) {
+          onChange({
+            ...options,
+            selection_mode: "selected_pages",
+            selected_pages: selected,
+            range_start: Math.min(...selected),
+            range_end: Math.max(...selected),
+          });
+        } else {
+          const updated = { ...options };
+          delete updated.selection_mode;
+          delete updated.selected_pages;
+          delete updated.range_start;
+          delete updated.range_end;
+          onChange(updated);
+        }
+      };
+
+      const validationError = options.mode === "range" && selectedPages.length === 0;
+
+      return (
+        <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Split options
+          </div>
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="font-medium text-slate-700">Mode</span>
+            <select
+              value={(options.mode as string) ?? "each"}
+              onChange={(e) => {
                 const newMode = e.target.value;
                 const updated = { ...options, mode: newMode };
-                // If switching to range, seed defaults if not already set
                 if (newMode === "range") {
                   if (updated.range_start === undefined) updated.range_start = 1;
                   if (updated.range_end === undefined) updated.range_end = 1;
                 }
-                // If switching to "n" mode, seed default pages per split
                 if (newMode === "n") {
                   if (updated.n_pages === undefined) updated.n_pages = 2;
                 }
                 onChange(updated);
               }}
-            className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
-          >
-            <option value="range">Page range</option>
-            <option value="each">Each page separate</option>
-            <option value="n">Every N pages</option>
-          </select>
-        </label>
-        {options.mode === "range" && (
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium text-slate-700">Start</span>
-              <input
-                type="number"
-                min={1}
-                value={(options.range_start as number) ?? 1}
-                onChange={(e) => onChange({ ...options, range_start: Number(e.target.value) })}
-                className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-xs">
-              <span className="font-medium text-slate-700">End</span>
-              <input
-                type="number"
-                min={1}
-                value={(options.range_end as number) ?? 1}
-                onChange={(e) => onChange({ ...options, range_end: Number(e.target.value) })}
-                className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
-              />
-            </label>
-          </div>
-        )}
-        {options.mode === "n" && (
-          <label className="flex flex-col gap-1 text-xs mt-2">
-            <span className="font-medium text-slate-700">Pages per split</span>
-            <input
-              type="number"
-              min={1}
-              value={(options.n_pages as number) ?? 2}
-              onChange={(e) => onChange({ ...options, n_pages: Number(e.target.value) })}
               className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
-            />
+            >
+              <option value="range">Page range</option>
+              <option value="each">Each page separate</option>
+              <option value="n">Every N pages</option>
+            </select>
           </label>
-        )}
-      </div>
-    );
-  }
+          {options.mode === "range" && (
+            <div className="mt-2">
+              <PageGrid
+                data={previewPages}
+                selectionMode={true}
+                selectedPages={selectedPages}
+                onSelectionChange={handleSelectionChange}
+              />
+              {validationError && (
+                <p className="mt-1 text-xs text-red-600">Select at least one page.</p>
+              )}
+              <div className="mt-1 text-xs text-slate-600">
+                Selected: {selectedPages.length ? selectedPages.join(", ") : "none"}
+              </div>
+            </div>
+          )}
+          {options.mode === "n" && (
+            <label className="flex flex-col gap-1 text-xs mt-2">
+              <span className="font-medium text-slate-700">Pages per split</span>
+              <input
+                type="number"
+                min={1}
+                value={(options.n_pages as number) ?? 2}
+                onChange={(e) => onChange({ ...options, n_pages: Number(e.target.value) })}
+                className="h-9 rounded-lg border border-slate-200 px-2 text-sm"
+              />
+            </label>
+          )}
+        </div>
+      );
+    }
 
   if (tool.id === "pdf_to_image") {
     return (
