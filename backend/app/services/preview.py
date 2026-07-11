@@ -54,16 +54,21 @@ def generate_preview(result: Dict[str, Any], tool_id: str) -> Optional[Dict[str,
             with zipfile.ZipFile(p, "r") as z:
                 images = []
                 for name in z.namelist():
-                    if len(images) >= 6:
-                        break
                     if not name.lower().endswith((".png", ".jpg", ".jpeg")):
                         continue
                     data = z.read(name)
                     mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
                     b64 = base64.b64encode(data).decode()
-                    images.append(f"data:{mime};base64,{b64}")
-                if images:
-                    return {"type": "image_gallery", "data": images}
+                    # Store src and page number (1‑based)
+                    images.append({"src": f"data:{mime};base64,{b64}", "page": len(images) + 1})
+                if not images:
+                    return None
+                if len(images) == 1:
+                    # Single‑page PDF – use existing thumbnail preview type
+                    return {"type": "pdf_thumbnail", "data": images[0]["src"]}
+                # Multiple pages – return grid data (limit to first 20 pages)
+                grid_data = images[:20]
+                return {"type": "pdf_page_grid", "data": grid_data}
         except Exception:
             return None
         return None
