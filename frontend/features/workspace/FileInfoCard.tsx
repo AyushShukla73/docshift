@@ -11,9 +11,10 @@ interface Props {
   file: UploadedFile;
   onRemove: () => void;
   onReplace: (files: UploadedFile[]) => void;
+  isProcessing: boolean;
 }
 
-export default function FileInfoCard({ file, onRemove, onReplace }: Props) {
+export default function FileInfoCard({ file, onRemove, onReplace, isProcessing }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleReplace = (e: ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +46,7 @@ export default function FileInfoCard({ file, onRemove, onReplace }: Props) {
           onClick={() => inputRef.current?.click()}
           className="rounded-lg px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
           title="Replace file"
+          disabled={isProcessing}
         >
           Replace
         </button>
@@ -52,6 +54,7 @@ export default function FileInfoCard({ file, onRemove, onReplace }: Props) {
           onClick={onRemove}
           className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600"
           title="Remove file"
+          disabled={isProcessing}
         >
           <Icon name="trash" className="h-4 w-4" />
         </button>

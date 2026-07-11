@@ -12,9 +12,10 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   onAdd: (files: UploadedFile[]) => void;
+  disabled?: boolean;
 }
 
-export default function Dropzone({ onAdd }: Props) {
+export default function Dropzone({ onAdd, disabled }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [rejected, setRejected] = useState<string[]>([]);
@@ -33,10 +34,12 @@ export default function Dropzone({ onAdd }: Props) {
   const onDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
+    if (disabled) return;
     handleFiles(e.dataTransfer.files);
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return;
     handleFiles(e.target.files);
     e.target.value = "";
   };
@@ -52,10 +55,9 @@ export default function Dropzone({ onAdd }: Props) {
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "group relative flex flex-1 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors",
-          isDragging
-            ? "border-brand-400 bg-brand-50"
-            : "border-slate-200 hover:border-brand-300 hover:bg-slate-50"
+          "group relative flex flex-1 flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors",
+          isDragging ? "border-brand-400 bg-brand-50" : "border-slate-200",
+          disabled && "cursor-not-allowed opacity-50"
         )}
       >
         <div

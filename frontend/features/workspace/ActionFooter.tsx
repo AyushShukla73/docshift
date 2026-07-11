@@ -17,6 +17,13 @@ export default function ActionFooter({
   isProcessing,
   onRun,
 }: Props) {
+  // Determine why the run button may be disabled for user feedback
+  const disabledReason = !canRun
+    ? tool
+      ? "Upload a file" // tool selected but no file(s)
+      : "Select a tool"
+    : undefined;
+
   return (
     <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/60 p-3">
       <div className="min-w-0">
@@ -28,6 +35,12 @@ export default function ActionFooter({
             ? `Output: ${tool.outputType}${tool.multiFile ? " · multi-file" : ""}`
             : "Pick a tool above to continue"}
         </p>
+        {/* Show helper text when button is disabled */}
+        {!canRun && (
+          <p className="mt-1 text-xs text-slate-400">
+            {disabledReason}
+          </p>
+        )}
       </div>
       <Button
         onClick={onRun}

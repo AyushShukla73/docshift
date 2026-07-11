@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import SourcePanel from "./SourcePanel";
 import ActionPanel from "./ActionPanel";
 import { UploadedFile } from "@/types/file";
@@ -11,6 +11,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 
 export default function Workspace() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [duplicateNames, setDuplicateNames] = useState<string[]>([]);
   const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
   const [options, setOptions] = useState<Record<string, unknown>>({});
   const [isProcessing, setIsProcessing] = useState(false);
@@ -28,13 +29,33 @@ export default function Workspace() {
     return getToolById(selectedToolId) as ToolDefinition | null;
   }, [selectedToolId]);
 
+  // Reset options (and clear any stale errors) when tool changes
+  useEffect(() => {
+    setOptions({});
+    setError(null);
+  }, [selectedToolId]);
+
   const handleFilesAdded = useCallback((next: UploadedFile[]) => {
-    setFiles((prev) => {
-                  return [...prev, ...next];
-    });
+    // Filter out duplicates (same name and size) and collect names of rejected files
+    const existing = new Set(files.map((f) => `${f.name}-${f.sizeBytes}`));
+    const unique: UploadedFile[] = [];
+    const dupes: string[] = [];
+    for (const f of next) {
+      const key = `${f.name}-${f.sizeBytes}`;
+      if (existing.has(key)) {
+        dupes.push(f.name);
+      } else {
+        existing.add(key);
+        unique.push(f);
+      }
+    }
+    if (unique.length > 0) {
+      setFiles((prev) => [...prev, ...unique]);
+    }
+    setDuplicateNames(dupes);
     setJob(null);
     setError(null);
-  }, []);
+  }, [files]);
 
   const handleRemoveFile = useCallback((id: string) => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
@@ -52,6 +73,7 @@ export default function Workspace() {
     setFiles([]);
     setSelectedToolId(null);
     setOptions({});
+    setDuplicateNames([]);
     setJob(null);
     setError(null);
   }, []);
@@ -120,6 +142,8 @@ export default function Workspace() {
                 onReplace={handleReplace}
                 onClearAll={handleClearAll}
                 detectedTypes={detectedTypes}
+                duplicateNames={duplicateNames}
+                isProcessing={isProcessing}
               />
               <ActionPanel
                 detectedTypes={detectedTypes}

@@ -16,6 +16,8 @@ interface Props {
   onRemove: (id: string) => void;
   onReplace: (files: UploadedFile[]) => void;
   onClearAll: () => void;
+  duplicateNames?: string[];
+  isProcessing: boolean;
 }
 
 export default function SourcePanel({
@@ -25,6 +27,8 @@ export default function SourcePanel({
   onRemove,
   onReplace,
   onClearAll,
+  duplicateNames,
+  isProcessing,
 }: Props) {
   const isEmpty = files.length === 0;
 
@@ -45,7 +49,7 @@ export default function SourcePanel({
         {files.length > 0 && (
           <div className="flex items-center gap-2">
             <Badge tone="brand">{files.length} file(s)</Badge>
-            <Button size="sm" variant="ghost" onClick={onClearAll}>
+            <Button size="sm" variant="ghost" onClick={onClearAll} disabled={isProcessing}>
               Clear all
             </Button>
           </div>
@@ -53,7 +57,14 @@ export default function SourcePanel({
       </div>
 
       {isEmpty ? (
-        <Dropzone onAdd={onAdd} />
+        <>
+          <Dropzone onAdd={onAdd} disabled={isProcessing} />
+          {duplicateNames && duplicateNames.length > 0 && (
+            <div className="mt-2 rounded-lg bg-yellow-50 px-3 py-2 text-xs text-yellow-700">
+              Duplicate files ignored: {duplicateNames.join(", ")}
+            </div>
+          )}
+        </>
       ) : (
         <div className="flex flex-col gap-3">
           {files.map((f) => (
