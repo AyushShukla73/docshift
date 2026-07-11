@@ -12,6 +12,14 @@ export interface JobOutput {
   size_bytes?: number;
   mime_type?: string;
   download_url?: string;
+  preview?: JobPreview;
+}
+
+export interface JobPreview {
+  /** preview type, e.g. "text", "image", "image_gallery", "pdf_thumbnail", "generic" */
+  type: string;
+  /** arbitrary data for the specific preview component */
+  data: any;
 }
 
 export interface Job {

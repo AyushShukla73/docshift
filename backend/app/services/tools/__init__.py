@@ -1,4 +1,5 @@
 from app.core.registry import tool_registry
+import importlib
 from app.services.tools import (
     pdf_to_word,
     word_to_pdf,
@@ -12,6 +13,9 @@ from app.services.tools import (
     unlock_pdf,
     ocr_extract_text,
 )
+
+# Ensure the latest version of the pdf_to_word module is loaded (helps when the file is edited during a live session).
+importlib.reload(pdf_to_word)
 
 
 def register_all_tools() -> None:

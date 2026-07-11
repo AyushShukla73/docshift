@@ -17,6 +17,8 @@ class JobOutput(BaseModel):
     download_url: Optional[str] = None
     size_bytes: Optional[int] = None
     mime_type: Optional[str] = None
+    # New preview field – optional, includes type and data for UI rendering
+    preview: Optional[Dict[str, Any]] = None
 
     # New normalized contract fields
     success: Optional[bool] = None

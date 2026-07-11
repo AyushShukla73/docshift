@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { normalizeWarnings, extractErrorMessage, formatResultMeta } from "./resultHelpers";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import PreviewPanel from "@/components/preview/PreviewPanel";
 
 interface Props {
   job: Job | null;
@@ -33,13 +34,16 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
   }
 
   if (error) {
+    const isPlaceholder = /not yet implemented/.test(error);
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-        <div className="flex items-center gap-2 text-sm font-medium text-red-800">
-          <Icon name="trash" className="h-4 w-4" />
-          Something went wrong
+      <div className={`rounded-xl border ${isPlaceholder ? 'border-amber-200 bg-amber-50' : 'border-red-200 bg-red-50'} p-4`}>
+        <div className={`flex items-center gap-2 text-sm font-medium ${isPlaceholder ? 'text-amber-800' : 'text-red-800'}`}>
+          <Icon name={isPlaceholder ? 'alertTriangle' : 'trash'} className="h-4 w-4" />
+          {isPlaceholder ? 'Feature not available' : 'Something went wrong'}
         </div>
-        <p className="mt-1 text-xs text-red-700">{error}</p>
+        <p className={`mt-1 text-xs ${isPlaceholder ? 'text-amber-700' : 'text-red-700'}`}>
+          {isPlaceholder ? "This tool is a placeholder and isn’t implemented yet. Please try another tool or check back later." : error}
+        </p>
       </div>
     );
   }
@@ -120,7 +124,10 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
         </div>
       )}
 
-      {ok && job.output?.warnings?.length > 0 && (
+      {ok && job.output?.preview && (
+  <PreviewPanel preview={job.output.preview} />
+)}
+{ok && job.output?.warnings?.length > 0 && (
         <div className="mt-2 space-y-1">
           {normalizeWarnings(job.output.warnings).map((w, i) => (
             <div key={i} className="flex items-start gap-1 text-xs text-yellow-700">

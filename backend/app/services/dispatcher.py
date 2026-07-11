@@ -9,6 +9,7 @@ from typing import Any, Dict
 
 from app.core.registry import tool_registry
 from app.models.job import Job, JobOutput, JobStatus
+from app.services import preview as preview_service
 
 
 async def dispatch(job: Job) -> Job:
@@ -46,6 +47,7 @@ async def dispatch(job: Job) -> Job:
         result = await asyncio.to_thread(handler, payload)
         job_output_data = result.get("output", {})
         job.output = JobOutput(**job_output_data)
+        job.output.preview = preview_service.generate_preview(result, job.tool_id)
         # Ensure tool_id and job_id are populated in output contract
         if job.output.tool_id is None:
             job.output.tool_id = job.tool_id
