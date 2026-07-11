@@ -28,7 +28,7 @@ def _image_to_pdf_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
     return standard_result(
         job_id=job_id,
         primary_path=final_path,
-        meta={"image_count": len(input_paths)},
+        meta={"image_count": len(input_paths), "preview_images": [str(p) for p in input_paths]},
     )
 
 
