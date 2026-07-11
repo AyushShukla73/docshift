@@ -1,7 +1,7 @@
 "use client";
 
 import { ToolDefinition } from "@/types/tool";
-import PageGrid from "@/components/preview/PageGrid";
+import PDFOrganizer from "@/components/preview/PDFOrganizer";
 import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
@@ -9,6 +9,7 @@ interface Props {
   tool: ToolDefinition | null;
   options: Record<string, unknown>;
   onChange: (next: Record<string, unknown>) => void;
+  onRun: () => void;
 }
 
 export default function OptionsPanel({ tool, options, onChange }: Props) {
@@ -34,7 +35,6 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
     );
   }
 
-    if (tool.id === "split_pdf") {
       const previewPages = (options.previewPages as any) ?? [];
 
       const handleSelectionChange = (selected: number[]) => {
@@ -57,6 +57,7 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
         }
       };
 
+      if (tool.id === "split_pdf") {
       const validationError = options.mode === "range" && selectedPages.length === 0;
 
       return (
@@ -89,7 +90,7 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
           </label>
           {options.mode === "range" && (
             <div className="mt-2">
-              <PageGrid
+              <PDFOrganizer
                 data={previewPages}
                 selectionMode={true}
                 selectedPages={selectedPages}
@@ -119,7 +120,42 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
       );
     }
 
-  if (tool.id === "pdf_to_image") {
+  if (tool.id === "delete_pdf_pages") {
+      const previewPages = (options.previewPages as any) ?? [];
+      const handleSelectionChange = (selected: number[]) => {
+        setSelectedPages(selected);
+        if (selected.length > 0) {
+          onChange({
+            ...options,
+            selection_mode: "selected_pages",
+            selected_pages: selected,
+            range_start: Math.min(...selected),
+            range_end: Math.max(...selected),
+          });
+        } else {
+          const updated = { ...options };
+          delete updated.selection_mode;
+          delete updated.selected_pages;
+          delete updated.range_start;
+          delete updated.range_end;
+          onChange(updated);
+        }
+      };
+      const handleDelete = () => {
+        if (selectedPages.length === 0) return;
+        const ok = window.confirm(`Delete ${selectedPages.length} selected page${selectedPages.length > 1 ? 's' : ''}?`);
+        if (ok) onRun();
+      };
+      return (
+        <PDFOrganizer
+          data={previewPages}
+          selectedPages={selectedPages}
+          onSelectionChange={handleSelectionChange}
+          onDelete={handleDelete}
+        />
+      );
+    }
+    if (tool.id === "pdf_to_image") {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">

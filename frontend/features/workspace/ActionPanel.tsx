@@ -76,7 +76,7 @@ export default function ActionPanel({
             onSelect={onSelectTool}
             categories={CATEGORY_ORDER}
           />
-          <OptionsPanel tool={selectedTool} options={options} onChange={onOptionsChange} />
+          <OptionsPanel tool={selectedTool} options={options} onChange={onOptionsChange} onRun={onRun} />
           <ResultCard job={job} error={error} isProcessing={isProcessing} />
           <div className="mt-auto">
             <ActionFooter

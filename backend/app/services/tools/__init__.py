@@ -12,6 +12,7 @@ from app.services.tools import (
     protect_pdf,
     unlock_pdf,
     ocr_extract_text,
+    delete_pdf_pages,
 )
 
 # Ensure the latest version of the pdf_to_word module is loaded (helps when the file is edited during a live session).
@@ -31,3 +32,4 @@ def register_all_tools() -> None:
     protect_pdf.register()
     unlock_pdf.register()
     ocr_extract_text.register()
+    delete_pdf_pages.register()
