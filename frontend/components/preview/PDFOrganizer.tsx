@@ -9,13 +9,21 @@ interface PageData {
 }
 
 interface Props {
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onApply?: () => void;
+  onCancel?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  dirty?: boolean;
+
   data: PageData[];
   selectedPages: number[];
   onSelectionChange: (pages: number[]) => void;
   onDelete?: () => void;
 }
 
-export default function PDFOrganizer({ data, selectedPages, onSelectionChange }: Props) {
+export default function PDFOrganizer({ data, selectedPages, onSelectionChange, onDelete, onUndo, onRedo, onApply, onCancel, canUndo, canRedo, dirty }: Props) {
   const total = data.length;
   const selectAll = () => onSelectionChange(data.map(p => p.page));
   const clear = () => onSelectionChange([]);
@@ -50,14 +58,54 @@ export default function PDFOrganizer({ data, selectedPages, onSelectionChange }:
             Clear
           </button>
           {onDelete && (
-            <button
-              type="button"
-              onClick={onDelete}
-              className="px-2 py-1 text-xs text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-            >
-              Delete Selected
-            </button>
-          )}
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  className="px-2 py-1 text-xs text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                >
+                  Delete Selected
+                </button>
+              )}
+              {onUndo && (
+                <button
+                  type="button"
+                  onClick={onUndo}
+                  disabled={!canUndo}
+                  className="px-2 py-1 text-xs text-white bg-gray-500 rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+                >
+                  Undo
+                </button>
+              )}
+              {onRedo && (
+                <button
+                  type="button"
+                  onClick={onRedo}
+                  disabled={!canRedo}
+                  className="px-2 py-1 text-xs text-white bg-gray-500 rounded hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+                >
+                  Redo
+                </button>
+              )}
+              {onApply && (
+                <button
+                  type="button"
+                  onClick={onApply}
+                  disabled={!dirty}
+                  className="px-2 py-1 text-xs text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                >
+                  Apply Changes
+                </button>
+              )}
+              {onCancel && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  disabled={!dirty}
+                  className="px-2 py-1 text-xs text-white bg-gray-600 rounded hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500"
+                >
+                  Cancel Editing
+                </button>
+              )}
         </div>
       </div>
       <PageGrid

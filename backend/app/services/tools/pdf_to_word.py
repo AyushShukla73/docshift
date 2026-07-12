@@ -11,7 +11,12 @@ from app.services.storage import create_workspace
 from app.services.tools.base import standard_result
 
 # pdf2docx is added to the backend requirements (see backend/requirements.txt).
-from pdf2docx import Converter
+# Import guarded – missing optional dependency should not crash startup.
+try:
+    from pdf2docx import Converter  # type: ignore
+except ImportError:  # pragma: no cover
+    Converter = None  # Fallback placeholder – registration will be skipped.
+
 
 
 def _pdf_to_word_handler(payload: dict) -> dict:
@@ -49,6 +54,11 @@ def _pdf_to_word_handler(payload: dict) -> dict:
 
 
 def register() -> None:
+    # Only register the tool if the optional pdf2docx library is installed.
+    if Converter is None:
+        # Defer import error to runtime when the tool is invoked.
+        # Skipping registration prevents startup failures.
+        return
     tool_registry.register(
         tool_id="pdf_to_word",
         label="PDF to Word",

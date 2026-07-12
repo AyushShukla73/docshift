@@ -2,6 +2,7 @@
 
 import { ToolDefinition } from "@/types/tool";
 import PDFOrganizer from "@/components/preview/PDFOrganizer";
+import EditingSession from "@/components/preview/EditingSession";
 import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function OptionsPanel({ tool, options, onChange }: Props) {
+  const [selectedPages, setSelectedPages] = useState<number[]>([]);
   if (!tool) {
     return (
       <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-500">
@@ -122,36 +124,11 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
 
   if (tool.id === "delete_pdf_pages") {
       const previewPages = (options.previewPages as any) ?? [];
-      const handleSelectionChange = (selected: number[]) => {
-        setSelectedPages(selected);
-        if (selected.length > 0) {
-          onChange({
-            ...options,
-            selection_mode: "selected_pages",
-            selected_pages: selected,
-            range_start: Math.min(...selected),
-            range_end: Math.max(...selected),
-          });
-        } else {
-          const updated = { ...options };
-          delete updated.selection_mode;
-          delete updated.selected_pages;
-          delete updated.range_start;
-          delete updated.range_end;
-          onChange(updated);
-        }
-      };
-      const handleDelete = () => {
-        if (selectedPages.length === 0) return;
-        const ok = window.confirm(`Delete ${selectedPages.length} selected page${selectedPages.length > 1 ? 's' : ''}?`);
-        if (ok) onRun();
-      };
       return (
-        <PDFOrganizer
-          data={previewPages}
-          selectedPages={selectedPages}
-          onSelectionChange={handleSelectionChange}
-          onDelete={handleDelete}
+        <EditingSession
+          previewPages={previewPages}
+          onRun={onRun}
+          onChange={onChange}
         />
       );
     }
