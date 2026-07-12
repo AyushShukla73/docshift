@@ -15,18 +15,29 @@ def _delete_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
         raise FileNotFoundError("Source PDF not found")
     options = payload.get("options", {}) or {}
     selected_pages = options.get("selected_pages") or []
-    if not selected_pages:
-        raise ValueError("No pages selected for deletion")
-    selected_set = set(int(p) for p in selected_pages)
+    page_order = options.get("page_order")
     reader = PdfReader(src_path)
     total_pages = len(reader.pages)
-    if any(p < 1 or p > total_pages for p in selected_set):
-        raise ValueError("Selected page out of bounds")
-    remaining = [i for i in range(1, total_pages + 1) if i not in selected_set]
-    if not remaining:
-        raise ValueError("At least one page must remain after deletion")
+    # Determine final page list
+    if page_order:
+        final_pages = [int(p) for p in page_order]
+        # Validate page numbers
+        if any(p < 1 or p > total_pages for p in final_pages):
+            raise ValueError("page_order contains out-of-bounds page numbers")
+        if len(set(final_pages)) != len(final_pages):
+            raise ValueError("page_order contains duplicate page numbers")
+    else:
+        # No explicit order – use deletion semantics
+        selected_set = set(int(p) for p in selected_pages)
+        if not selected_set:
+            raise ValueError("No pages selected for deletion")
+        if any(p < 1 or p > total_pages for p in selected_set):
+            raise ValueError("Selected page out of bounds")
+        final_pages = [i for i in range(1, total_pages + 1) if i not in selected_set]
+        if not final_pages:
+            raise ValueError("At least one page must remain after deletion")
     writer = PdfWriter()
-    for pi in remaining:
+    for pi in final_pages:
         writer.add_page(reader.pages[pi - 1])
     job_id = payload.get("job_id")
     if not job_id:

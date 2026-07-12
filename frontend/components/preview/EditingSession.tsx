@@ -25,7 +25,8 @@ export default function EditingSession({ previewPages, onRun, onChange }: Props)
     setPendingDeletes(new Set());
   }, [previewPages]);
 
-  const dirty = pendingDeletes.size > 0;
+  const orderChanged = JSON.stringify(pages.map(p => p.page)) !== JSON.stringify(previewPages.map(p => p.page));
+  const dirty = pendingDeletes.size > 0 || orderChanged;
 
   const handleSelectionChange = (sel: number[]) => {
     setSelected(sel);
@@ -79,14 +80,21 @@ export default function EditingSession({ previewPages, onRun, onChange }: Props)
 
   const handleApply = () => {
     const deleteArray = Array.from(pendingDeletes);
-    if (deleteArray.length === 0) return;
-    onChange({
-      ...{},
-      selected_pages: deleteArray,
-      selection_mode: "selected_pages",
-      range_start: Math.min(...deleteArray),
-      range_end: Math.max(...deleteArray),
-    });
+    const pageOrder = pages.map(p => p.page);
+    const changes: Record<string, unknown> = {};
+    if (deleteArray.length > 0) {
+      changes.selected_pages = deleteArray;
+      changes.selection_mode = "selected_pages";
+      changes.range_start = Math.min(...deleteArray);
+      changes.range_end = Math.max(...deleteArray);
+    }
+    // Include page_order when it differs from original order
+    const originalOrder = previewPages.map(p => p.page);
+    if (JSON.stringify(pageOrder) !== JSON.stringify(originalOrder)) {
+      changes.page_order = pageOrder;
+    }
+    if (Object.keys(changes).length === 0) return; // nothing to apply
+    onChange(changes);
     onRun();
     // reset session after applying
     setPages(previewPages);
@@ -104,6 +112,15 @@ export default function EditingSession({ previewPages, onRun, onChange }: Props)
     setSelected([]);
   };
 
+  const handleReorder = (newData: any[]) => {
+    // Record current order for undo, clear redo, update pages
+    setUndoStack([...undoStack, pages]);
+    setRedoStack([]);
+    setPages(newData);
+    setSelected([]);
+    // pendingDeletes unchanged – reorder does not affect deletions
+  };
+
   return (
     <PDFOrganizer
       data={pages}
@@ -114,6 +131,7 @@ export default function EditingSession({ previewPages, onRun, onChange }: Props)
       onRedo={handleRedo}
       onApply={handleApply}
       onCancel={handleCancel}
+      onReorder={handleReorder}
       canUndo={undoStack.length > 0}
       canRedo={redoStack.length > 0}
       dirty={dirty}
