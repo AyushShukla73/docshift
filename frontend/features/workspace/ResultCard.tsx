@@ -129,7 +129,7 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
 )}
 {ok && ((job.output as any)?.warnings?.length ?? 0) > 0 && (
         <div className="mt-2 space-y-1">
-          {normalizeWarnings(job.output.warnings).map((w, i) => (
+          {normalizeWarnings(((job.output as any)?.warnings ?? [])).map((w, i) => (
             <div key={i} className="flex items-start gap-1 text-xs text-yellow-700">
               <Icon name="alertTriangle" className="h-4 w-4 flex-shrink-0" />
               <span>{w}</span>
@@ -138,13 +138,13 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
         </div>
       )}
 
-            {ok && job.output?.output_files?.length > 1 && (
+            {ok && ((job.output as any)?.output_files?.length ?? 0) > 1 && (
         <div className="mt-4">
           <div className="text-xs font-medium text-slate-700 mb-1">Generated files</div>
           <ul className="space-y-2">
-            {job.output.output_files
-              .filter((f) => f.name !== job.output?.filename)
-              .map((f, idx) => (
+            {(job.output as any).output_files
+              .filter((f: any) => f.name !== job.output?.filename)
+              .map((f: any, idx: number) => (
                 <li key={idx} className="flex items-center justify-between rounded bg-white p-2 text-sm">
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-900">{f.name}</p>
@@ -158,11 +158,11 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
         </div>
       )}
 
-            {ok && job.output?.result_meta && formatResultMeta(job.output.result_meta).length > 0 && (
+            {ok && (job.output as any)?.result_meta && formatResultMeta((job.output as any).result_meta).length > 0 && (
         <div className="mt-2">
           <div className="text-xs font-medium text-slate-700 mb-1">Details</div>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600">
-            {formatResultMeta(job.output.result_meta).map(({ label, value }, i) => (
+            {formatResultMeta((job.output as any).result_meta).map(({ label, value }, i) => (
               <React.Fragment key={i}>
                 <dt className="capitalize text-slate-500">{label}</dt>
                 <dd>{value}</dd>
