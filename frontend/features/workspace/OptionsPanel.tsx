@@ -75,11 +75,11 @@ export default function OptionsPanel({ tool, options, onChange }: Props) {
                 const newMode = e.target.value;
                 const updated = { ...options, mode: newMode };
                 if (newMode === "range") {
-                  if (updated.range_start === undefined) updated.range_start = 1;
-                  if (updated.range_end === undefined) updated.range_end = 1;
+                  if ((updated as any).range_start === undefined) (updated as any).range_start = 1;
+                  if ((updated as any).range_end === undefined) (updated as any).range_end = 1;
                 }
                 if (newMode === "n") {
-                  if (updated.n_pages === undefined) updated.n_pages = 2;
+                  if ((updated as any).n_pages === undefined) (updated as any).n_pages = 2;
                 }
                 onChange(updated);
               }}

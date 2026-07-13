@@ -4,6 +4,8 @@ interface Props {
   data: string | { src: string; alt?: string };
 }
 
+import React from "react";
+
 export default function ImagePreview({ data }: Props) {
   const src = typeof data === "string" ? data : data?.src;
   const alt = typeof data === "string" ? "" : data?.alt ?? "Preview image";

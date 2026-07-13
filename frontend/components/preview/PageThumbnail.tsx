@@ -9,9 +9,13 @@ interface Props {
   alt?: string;
   selected?: boolean;
   onSelect?: () => void;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent<HTMLButtonElement>) => void;
+  onDragOver?: (e: React.DragEvent<HTMLButtonElement>) => void;
+  onDrop?: (e: React.DragEvent<HTMLButtonElement>) => void;
 }
 
-export default function PageThumbnail({ src, page, alt, selected = false, onSelect }: Props) {
+export default function PageThumbnail({ src, page, alt, selected = false, onSelect, draggable, onDragStart, onDragOver, onDrop }: Props) {
   const label = alt ?? `Page ${page}`;
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -20,7 +24,7 @@ export default function PageThumbnail({ src, page, alt, selected = false, onSele
     }
   };
   return (
-    <button
+    <button draggable={draggable} onDragStart={onDragStart} onDragOver={onDragOver} onDrop={onDrop}
       type="button"
       onClick={onSelect}
       onKeyDown={handleKey}
