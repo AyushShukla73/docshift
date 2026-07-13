@@ -26,6 +26,10 @@ def _pdf_to_word_handler(payload: dict) -> dict:
     The generated DOCX is written to the job's output directory and returned via
     ``standard_result``.
     """
+    # Ensure the optional pdf2docx library is available.
+    if Converter is None:
+        raise RuntimeError("pdf2docx library is not installed; PDF → DOCX conversion unavailable.")
+
     inputs = payload.get("inputs", [])
     if len(inputs) != 1:
         raise ValueError("pdf_to_word expects exactly one input file")
@@ -54,11 +58,8 @@ def _pdf_to_word_handler(payload: dict) -> dict:
 
 
 def register() -> None:
-    # Only register the tool if the optional pdf2docx library is installed.
-    if Converter is None:
-        # Defer import error to runtime when the tool is invoked.
-        # Skipping registration prevents startup failures.
-        return
+    # Register the tool unconditionally. If the optional pdf2docx library is missing,
+    # the handler will raise a clear error when invoked.
     tool_registry.register(
         tool_id="pdf_to_word",
         label="PDF to Word",
