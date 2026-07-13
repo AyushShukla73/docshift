@@ -13,7 +13,7 @@ interface Props {
   onRun: () => void;
 }
 
-export default function OptionsPanel({ tool, options, onChange }: Props) {
+export default function OptionsPanel({ tool, options, onChange, onRun }: Props) {
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
   if (!tool) {
     return (

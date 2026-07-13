@@ -9,6 +9,7 @@ interface PageData {
 }
 
 interface Props {
+  selectionMode?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
   onApply?: () => void;
@@ -24,7 +25,7 @@ interface Props {
   onDelete?: () => void;
 }
 
-export default function PDFOrganizer({ data, selectedPages, onSelectionChange, onDelete, onUndo, onRedo, onApply, onCancel, onReorder, canUndo, canRedo, dirty }: Props) {
+export default function PDFOrganizer({ data, selectedPages, onSelectionChange, onDelete, onUndo, onRedo, onApply, onCancel, onReorder, canUndo, canRedo, dirty, selectionMode }: Props) {
   const total = data.length;
   const selectAll = () => onSelectionChange(data.map(p => p.page));
   const clear = () => onSelectionChange([]);

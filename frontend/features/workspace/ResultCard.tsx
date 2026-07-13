@@ -127,7 +127,7 @@ export default function ResultCard({ job, error, isProcessing }: Props) {
       {ok && job.output?.preview && (
   <PreviewPanel preview={job.output.preview} />
 )}
-{ok && job.output?.warnings?.length > 0 && (
+{ok && ((job.output as any)?.warnings?.length ?? 0) > 0 && (
         <div className="mt-2 space-y-1">
           {normalizeWarnings(job.output.warnings).map((w, i) => (
             <div key={i} className="flex items-start gap-1 text-xs text-yellow-700">
